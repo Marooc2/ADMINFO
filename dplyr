@@ -1,0 +1,53 @@
+install.packages("dplyr")
+install.packages("lubridate")
+
+
+library(dplyr)
+library(lubridate)
+#cargar Datos
+rm(list=ls())
+getwd() #obtener la ruta de donde te encuentras
+setwd("C:/Users/artur/Desktop/Universidad/2017-2/Administración de la información/AnalisisSentimientos")
+
+#Leer datos desde un csv
+Datos <- read.csv("Datos2.csv")
+View(Datos)
+
+
+#Mostrar las categorías de delito.
+str(Datos)
+unique(Datos %>% select(Categoria))
+View(unique(Datos %>% select(Categoria)))
+
+
+#Mostrar solo puesto y la categoría de delito
+Datos %>%select(Puesto,Categoria)
+
+#Mostrar los campos excepto el puesto policial
+head(Datos %>%select(-Puesto))
+
+#Ordenar por categoria
+Datos %>%arrange(Categoria)
+
+#Agregar una columnas del año, mes, dia del delito
+Datos %>%mutate(anior = year(Fecha_Hora), mes = month(Fecha_Hora), dia = day(Fecha_Hora))
+#agregar columnas para hora y minuto
+Datos %>%mutate(hora = hour(Fecha_Hora), minuto = minute(Fecha_Hora))
+
+#mostrar solamente las categoria
+Datos %>%distinct(Categoria, .keep_all = TRUE)
+
+#Cantidad de categoria
+Datos %>%summarize(tiposCategoria = n_distinct(Categoria))
+
+#filtrar los delitos de la categoría Robos
+Datos %>%filter(Categoria == "Robos")
+
+#filtar los delitos por categoria que contenga robo
+library(stringr)
+Datos %>%filter(str_detect(Categoria, "Robo"))
+
+
+#Mostrar la categoria de Robos y con fecha mayor al 31-12-2014
+f=as.POSIXct(Datos$Fecha_Hora, format="%Y-%m-%d %H:%M:%S", tz="GMT")
+Datos %>%filter(Categoria == "Robos" & f > as.POSIXct("2014-12-31"))
